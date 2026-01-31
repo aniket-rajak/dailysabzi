@@ -1,33 +1,29 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Home, Mail, Lock, User, Chrome, Eye, EyeOff } from "lucide-react";
+import { Mail, Lock, Home, Eye, EyeOff, UserPlus } from "lucide-react";
 import Link from "next/link";
-import { signIn } from "next-auth/react";
 import { useState } from "react";
 
-export default function RegisterPage() {
-  const [showPassword, setShowPassword] = useState(false);
-
-  const [name, setName] = useState("");
+export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
 
-  const isValid =
-    name.trim().length >= 2 && email.includes("@") && password.length >= 6;
+  const isValid = email.includes("@") && password.length >= 6;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!isValid) {
-      setError("Please fill all fields correctly");
+      setError("Please enter a valid email and password (min 6 chars)");
       return;
     }
 
     setError("");
-    console.log({ name, email, password });
-    // 🔐 Call register API here
+    // 🔐 call login API / next-auth signIn here
+    console.log({ email, password });
   };
 
   return (
@@ -38,29 +34,22 @@ export default function RegisterPage() {
         transition={{ duration: 0.6 }}
         className="w-full max-w-md bg-white rounded-2xl shadow-xl p-6 sm:p-8"
       >
+        {/* Title */}
         <motion.h1
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
           className="text-2xl sm:text-3xl font-bold text-center text-emerald-700"
         >
-          Create Account
+          Welcome Back
         </motion.h1>
+
+        <p className="text-center text-gray-500 text-sm mt-2">
+          Login to continue 🥬
+        </p>
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-          {/* Name */}
-          <div className="relative">
-            <User className="absolute left-3 top-1/2 -translate-y-1/2 text-emerald-500 w-5 h-5" />
-            <input
-              type="text"
-              placeholder="Full Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-400"
-            />
-          </div>
-
           {/* Email */}
           <div className="relative">
             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-emerald-500 w-5 h-5" />
@@ -79,7 +68,7 @@ export default function RegisterPage() {
 
             <input
               type={showPassword ? "text" : "password"}
-              placeholder="Password (min 6 chars)"
+              placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full pl-10 pr-12 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-400"
@@ -91,11 +80,15 @@ export default function RegisterPage() {
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-emerald-600"
             >
-              {showPassword ? <EyeOff /> : <Eye />}
+              {showPassword ? (
+                <EyeOff className="w-5 h-5" />
+              ) : (
+                <Eye className="w-5 h-5" />
+              )}
             </motion.button>
           </div>
 
-          {/* Error Message */}
+          {/* Error */}
           {error && (
             <motion.p
               initial={{ opacity: 0 }}
@@ -106,7 +99,7 @@ export default function RegisterPage() {
             </motion.p>
           )}
 
-          {/* Register Button */}
+          {/* Login Button */}
           <motion.button
             whileHover={isValid ? { scale: 1.03 } : {}}
             whileTap={isValid ? { scale: 0.97 } : {}}
@@ -118,27 +111,9 @@ export default function RegisterPage() {
                   : "bg-emerald-200 text-white cursor-not-allowed"
               }`}
           >
-            Register
+            Login
           </motion.button>
         </form>
-
-        {/* Divider */}
-        <div className="flex items-center gap-3 my-5">
-          <span className="flex-1 h-px bg-gray-200" />
-          <span className="text-sm text-gray-400">OR</span>
-          <span className="flex-1 h-px bg-gray-200" />
-        </div>
-
-        {/* Google Sign In */}
-        <motion.button
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.97 }}
-          onClick={() => signIn("google")}
-          className="w-full flex items-center justify-center gap-2 border py-2 rounded-lg hover:bg-gray-50 transition"
-        >
-          <Chrome className="w-5 h-5 text-emerald-600" />
-          <span className="font-medium">Continue with Google</span>
-        </motion.button>
 
         {/* Footer */}
         <div className="mt-6 flex justify-between items-center text-sm">
@@ -150,8 +125,12 @@ export default function RegisterPage() {
             Home
           </Link>
 
-          <Link href="/login" className="text-gray-500 hover:underline">
-            Already have an account?
+          <Link
+            href="/register"
+            className="flex items-center gap-1 text-gray-600 hover:underline"
+          >
+            <UserPlus className="w-4 h-4" />
+            Register
           </Link>
         </div>
       </motion.div>
