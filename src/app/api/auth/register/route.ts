@@ -32,8 +32,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message: user }, { status: 200 });
   } catch (error) {
     return NextResponse.json(
-      { message: `Register Error creating user: ${error}` },
-      { status: 200 },
+      { message: `Error creating user: ${error}` },
+      { status: 500 },
     );
   }
 }

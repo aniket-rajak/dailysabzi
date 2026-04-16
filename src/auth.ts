@@ -1,5 +1,6 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
+import Google from "next-auth/providers/google";
 import connectDb from "./lib/db";
 import User from "./models/user.model";
 
@@ -28,10 +29,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           throw new Error("No user found with the given email");
         }
 
-        const isPasswordValid = await user.comparePassword(
-          password,
-          user.password,
-        );
+        const isPasswordValid = await user.comparePassword(password);
 
         if (!isPasswordValid) {
           throw new Error("Invalid password");
@@ -45,8 +43,33 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         };
       },
     }),
+    Google({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    }),
   ],
+  
   callbacks: {
+
+    async signIn({user, account}){
+      if (account?.provider=="google") {
+        await connectDb()
+        let dbUser=await User.findOne({email:user.email})
+
+        if(!dbUser){
+          dbUser=await User.create({
+            name: user.name,
+            email: user.email,
+            image: user.image
+          })
+        }
+
+        user.id=dbUser._id.toString()
+        user.role=dbUser.role
+      }
+      return true
+    },
+
     jwt({ token, user }) {
       if (user) {
         token.id = user.id;
@@ -66,8 +89,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
   },
   pages: {
-    signIn: "/loging",
-    error: "/loging",
+    signIn: "/login",
+    error: "/login",
   },
   session: {
     strategy: "jwt",

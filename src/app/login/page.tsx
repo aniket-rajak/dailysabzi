@@ -1,15 +1,15 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Mail, Lock, Home, Eye, EyeOff, UserPlus } from "lucide-react";
+import { Mail, Lock, Home, Eye, EyeOff, UserPlus, Chrome } from "lucide-react";
 import Link from "next/link";
+import { signIn } from "next-auth/react";
 import { useState } from "react";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
 
   const isValid = email.includes("@") && password.length >= 6;
 
@@ -17,13 +17,10 @@ export default function LoginPage() {
     e.preventDefault();
 
     if (!isValid) {
-      setError("Please enter a valid email and password (min 6 chars)");
       return;
     }
 
-    setError("");
-    // 🔐 call login API / next-auth signIn here
-    console.log({ email, password });
+    signIn("credentials", { email, password, callbackUrl: "/" });
   };
 
   return (
@@ -34,7 +31,6 @@ export default function LoginPage() {
         transition={{ duration: 0.6 }}
         className="w-full max-w-md bg-white rounded-2xl shadow-xl p-6 sm:p-8"
       >
-        {/* Title */}
         <motion.h1
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -45,12 +41,10 @@ export default function LoginPage() {
         </motion.h1>
 
         <p className="text-center text-gray-500 text-sm mt-2">
-          Login to continue 🥬
+          Login to continue
         </p>
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-          {/* Email */}
           <div className="relative">
             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-emerald-500 w-5 h-5" />
             <input
@@ -62,7 +56,6 @@ export default function LoginPage() {
             />
           </div>
 
-          {/* Password */}
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-emerald-500 w-5 h-5" />
 
@@ -78,7 +71,7 @@ export default function LoginPage() {
               type="button"
               whileTap={{ scale: 0.85 }}
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-emerald-600"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-emerald-600 cursor-pointer"
             >
               {showPassword ? (
                 <EyeOff className="w-5 h-5" />
@@ -88,18 +81,6 @@ export default function LoginPage() {
             </motion.button>
           </div>
 
-          {/* Error */}
-          {error && (
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-sm text-red-500"
-            >
-              {error}
-            </motion.p>
-          )}
-
-          {/* Login Button */}
           <motion.button
             whileHover={isValid ? { scale: 1.03 } : {}}
             whileTap={isValid ? { scale: 0.97 } : {}}
@@ -115,7 +96,24 @@ export default function LoginPage() {
           </motion.button>
         </form>
 
-        {/* Footer */}
+        <div className="flex items-center gap-3 my-5">
+          <span className="flex-1 h-px bg-gray-200" />
+          <span className="text-sm text-gray-400">OR</span>
+          <span className="flex-1 h-px bg-gray-200" />
+        </div>
+
+        <motion.button
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.97 }}
+          onClick={() => signIn("google", { callbackUrl: "/" })}
+          className="w-full flex items-center justify-center gap-2 border py-2 rounded-lg hover:bg-gray-50 transition"
+        >
+          <Chrome className="w-5 h-5 text-emerald-600" />
+          <span className="font-medium cursor-pointer">
+            Continue with Google
+          </span>
+        </motion.button>
+
         <div className="mt-6 flex justify-between items-center text-sm">
           <Link
             href="/"

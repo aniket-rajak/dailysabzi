@@ -1,12 +1,14 @@
 import mongoose, { Schema } from "mongoose";
+import bcrypt from "bcryptjs";
 
-interface IUser {
+export interface IUser {
   _id?: mongoose.Types.ObjectId;
   name: string;
   email: string;
-  password: string;
+  password?: string;
   mobile: string;
   role: "user" | "deliveryboy" | "admin";
+  image?: string;
 }
 
 const userSchema = new mongoose.Schema<IUser>(
@@ -22,19 +24,27 @@ const userSchema = new mongoose.Schema<IUser>(
     },
     password: {
       type: String,
-      required: true,
+      required: false,
     },
     mobile: {
       type: String,
+      default: "",
     },
     role: {
       type: String,
       enum: ["user", "deliveryboy", "admin"],
       default: "user",
     },
+    image:{
+      type: String
+    },
   },
   { timestamps: true },
 );
+
+userSchema.methods.comparePassword = async function (enteredPassword: string): Promise<boolean> {
+  return bcrypt.compare(enteredPassword, this.password || "");
+};
 
 const User = mongoose.models.User || mongoose.model("User", userSchema);
 
